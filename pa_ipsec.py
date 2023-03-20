@@ -65,7 +65,7 @@ for num in numberOfDev:
                                 'Aes256-Sha1-dh5-3600',
                                 'Aes256-Sha1-dh5-no-pfs-3600',
                                 'Aes256-Sha1-dh14-86400']
-    print(IKE_Crypto_Profile_List)
+    print(IPsec_Crypto_Profile_List)
     print()
 
     ph2_sa = ''
@@ -88,10 +88,10 @@ for num in numberOfDev:
     stdin, stdout, stderr = ssh.exec_command(f'set network ike gateway {ike_gateway_name} local-address interface ae00.xywz')
     stdin, stdout, stderr = ssh.exec_command(f'set network ike gateway {ike_gateway_name} pre-shared-key ascii-text {pre_shared_key}')
     stdin, stdout, stderr = ssh.exec_command(f'set network ike gateway {ike_gateway_name} protocol ikev1 ike-crypto-profile {ph1_sa}')
-    stdin, stdout, stderr = ssh.exec_command('set network ike gateway E-mpay protocol ikev1 dpd enable yes')
-    stdin, stdout, stderr = ssh.exec_command('set network ike gateway E-mpay protocol ikev1 dpd interval 10')
-    stdin, stdout, stderr = ssh.exec_command('set network ike gateway E-mpay protocol ikev1 dpd retry 2')
-    stdin, stdout, stderr = ssh.exec_command('set network ike gateway E-mpay protocol ikev2 dpd enable yes')
+    stdin, stdout, stderr = ssh.exec_command(f'set network ike gateway {ike_gateway_name} protocol ikev1 dpd enable yes')
+    stdin, stdout, stderr = ssh.exec_command(f'set network ike gateway {ike_gateway_name} protocol ikev1 dpd interval 10')
+    stdin, stdout, stderr = ssh.exec_command(f'set network ike gateway {ike_gateway_name} protocol ikev1 dpd retry 2')
+    stdin, stdout, stderr = ssh.exec_command(f'set network ike gateway {ike_gateway_name} protocol ikev2 dpd enable yes')
     stdin, stdout, stderr = ssh.exec_command(f'set network ike gateway {ike_gateway_name} protocol-common nat-traversal enable no')
     stdin, stdout, stderr = ssh.exec_command(f'set network ike gateway {ike_gateway_name} protocol-common fragmentation enable no')
     stdin, stdout, stderr = ssh.exec_command(f'set network ike gateway {ike_gateway_name} peer-address ip {peer_public_ip}')
