@@ -98,7 +98,7 @@ for num in range(numberOfDev):
 
     # configure IPsec tunnel
     stdin, stdout, stderr = ssh.exec_command(f'set network tunnel ipsec {ipsec_tunnel_name} auto-key ike-gateway {ike_gateway_name}')
-    stdin, stdout, stderr = ssh.exec_command(f'set network tunnel ipsec {ipsec_tunnel_name} auto-key ipsec-crypto-profile {IPsec_Crypto_Profile_List}')
+    stdin, stdout, stderr = ssh.exec_command(f'set network tunnel ipsec {ipsec_tunnel_name} auto-key ipsec-crypto-profile {ph2_sa)
     stdin, stdout, stderr = ssh.exec_command(f'set network tunnel ipsec {ipsec_tunnel_name} tunnel-interface {tunnel_interface}')
 
     # save configuration
