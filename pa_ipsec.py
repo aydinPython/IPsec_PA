@@ -6,7 +6,7 @@ import time
 # define invetory for devices
 
 numberOfDev = int('How much devices ? - ')
-for num in numberOfDev:
+for num in range(numberOfDev):
 
     # define variables for firewall login
     fw_ip = input('Enter Firewall IP Address: ')
