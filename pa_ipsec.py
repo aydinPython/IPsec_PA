@@ -38,7 +38,7 @@ for num in range(numberOfDev):
 
     # define Tunnel Interface number
     last_created_tunnel_interface = input('Define Last Created Tunnel Interface Number: ')
-    tunnel_interface = input('Define Tunnel Interface Number: ')
+    tunnel_interface = input('Define Tunnel Interface Number will be created: ')
     check = 3
     while check > 0:
 
