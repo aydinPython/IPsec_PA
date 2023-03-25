@@ -1,13 +1,9 @@
-import netmiko
 from netmiko import ConnectHandler
 import getpass # enrypt login credentials
 import time
 
 
 # define invetory for devices
-
-
-
 numberOfDev = int(input('How much devices ? - '))
 for num in range(numberOfDev):
 
@@ -35,7 +31,6 @@ for num in range(numberOfDev):
     print('#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#')
     print()
 
-
     # define Tunnel Interface number
     last_created_tunnel_interface = input('Define Last Created Tunnel Interface Number: ')
     tunnel_interface = input('Define Tunnel Interface Number will be created: ')
@@ -47,32 +42,110 @@ for num in range(numberOfDev):
         else:
             break
     
-    # choose Phase1 Proposals
+    # IKE Profile
+    ike_profile = input('Would you like to use existing IKE(1) or create new one(2) ? - \n 1 or 2')
+    # choose existing profile if you have in your PA device
+    if ike_profile == '1':
 
-    IKE_Crypto_Profile_List = ['Aes256-Sha1-dh14-86400',
-                              'Aes256-Sha1-dh5-86400',
-                              'Aes256-Sha1-dh14-28800']
-    print('IKE-GW-Profile: ', IKE_Crypto_Profile_List)
-    print('#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#')
-    print()
+        IKE_Crypto_Profile_List = ['Aes256-Sha1-dh14-86400',
+                                'Aes256-Sha1-dh5-86400',
+                                'Aes256-Sha1-dh14-28800']
+        print('IKE-GW-Profile: ', IKE_Crypto_Profile_List)
+        print('#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#')
+        print()
 
+        ph1_sa = ''
+        phase1 = input('Choose one of them(copy and paste here): ')
+        if phase1 == 'Aes256-Sha1-dh14-86400':
+            ph1_sa = IKE_Crypto_Profile_List[0]
+        elif phase1 == 'Aes256-Sha1-dh5-86400':
+            ph1_sa = IKE_Crypto_Profile_List[1]
+        elif phase1 == 'Aes256-Sha1-dh14-28800':
+            ph1_sa = IKE_Crypto_Profile_List[2]
+    
+    elif ike_profile == '2':
 
-    ph1_sa = ''
-    phase1 = input('Choose one of them(copy and paste here): ')
-    if phase1 == 'Aes256-Sha1-dh14-86400':
-        ph1_sa = IKE_Crypto_Profile_List[0]
-    elif phase1 == 'Aes256-Sha1-dh5-86400':
-        ph1_sa = IKE_Crypto_Profile_List[1]
-    elif phase1 == 'Aes256-Sha1-dh14-28800':
-        ph1_sa = IKE_Crypto_Profile_List[2]
+        # create your authentication values
+        ike_auth = ['sha1','sha256','sha384','sha512','md5']
+        print()
+        print(ike_auth)
+        ike_auth_value = input('Define Authentication Header: ')
+        if ike_auth_value == 'sha1':
+            ike_auth_value == ike_auth[0]
+        elif ike_auth_value == 'sha256':
+            ike_auth_value == ike_auth[1]
+        elif ike_auth_value == 'sha384':
+            ike_auth_value == ike_auth[2]
+        elif ike_auth_value == 'sha512':
+            ike_auth_value == ike_auth[3]
+        elif ike_auth_value == 'md5':
+            ike_auth_value == ike_auth[4]
+        else:
+            break
+        
+        # create your encryption values
+        ike_encrypt = ['aes-128-cbc','aes-192-cbc','aes256-cbc','3des','aes128-gcm','aes256-gcm']
+        print()
+        print(ike_encrypt)
+        ike_encr_value = input('Define Encryption Header: ')
+        if ike_encr_value == 'aes-128-cbc':
+            ike_encr_value == ike_encrypt[0]
+        elif ike_encr_value == 'aes-192-cbc':
+            ike_encr_value == ike_encrypt[1]
+        elif ike_encr_value == 'aes256-cbc':
+            ike_encr_value == ike_encrypt[2]
+        elif ike_encr_value == '3des':
+            ike_encr_value == ike_encrypt[3]
+        elif ike_encr_value == 'aes128-gcm':
+            ike_encr_value == ike_encrypt[4]
+        elif ike_encr_value == 'aes256-gcm':
+            ike_encr_value == ike_encrypt[5]
+        else:
+            break
+        
+        # create your diffie-helman values
+        ike_diffie_hellman = ['group1','group2','group5','group14','group15']
+        print()
+        print(ike_diffie_hellman)
+        ike_dh_value = input('Define DH Group: ')
+        if ike_dh_value == 'group1':
+            ike_dh_value == ike_diffie_hellman[0]
+        elif ike_dh_value == 'group2':
+            ike_dh_value == ike_diffie_hellman[1]
+        elif ike_dh_value == 'group5':
+            ike_dh_value == ike_diffie_hellman[2]
+        elif ike_dh_value == 'group14':
+            ike_dh_value == ike_diffie_hellman[3]
+        elif ike_dh_value == 'group15':
+            ike_dh_value == ike_diffie_hellman[4]
+        else:
+            break
 
+        ike_lifetime = input('Define your lifetime: seconds(click 1) / hours(click 2)')
+        if ike_lifetime == '1':
+            print('ike life time will accepted like as seconds format')
+            ike_lifetime_value = input('Define lifetime : ')
+        elif ike_lifetime == '2':
+            print('ike life time will accepted like as hours format')
+            ike_lifetime_value = input('Define lifetime : ')
+        ike_profile_name = input('Define IKE-Profile name: ')
+
+        # configuration stage for IKE GW Profile
+
+        command_for_IKE_Profile = [f'set network ike crypto-profiles ike-crypto-profiles {ike_profile_name} hash {ike_auth_value}',
+                                   f'set network ike crypto-profiles ike-crypto-profiles {ike_profile_name} encryption {ike_encr_value}',
+                                   f'set network ike crypto-profiles ike-crypto-profiles {ike_profile_name} dh-group {ike_dh_value}',
+                                   f'set network ike crypto-profiles ike-crypto-profiles {ike_profile_name} lifetime {ike_lifetime_value}']
+
+        configuration_for_IKE_Profile = ssh_connect.send_config_set(command_for_IKE_Profile)
+        
     # choose Phase2 Proposals
 
-    IPsec_Crypto_Profile_List = ['Aes256-Sha1-dh5-86400',
-                                'Aes256-Sha1-dh5-28800',
-                                'Aes256-Sha1-dh5-3600',
-                                'Aes256-Sha1-dh5-no-pfs-3600',
-                                'Aes256-Sha1-dh14-86400']
+    IPsec_Crypto_Profile_List = ['1.Aes256-Sha1-dh5-86400',
+                                '2.Aes256-Sha1-dh5-28800',
+                                '3.Aes256-Sha1-dh5-3600',
+                                '4.Aes256-Sha1-dh5-no-pfs-3600',
+                                '5.Aes256-Sha1-dh14-86400']
     print('IPsec-GW-Profile: ', IPsec_Crypto_Profile_List)
     print('#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#')
     print()
@@ -150,7 +223,6 @@ for num in range(numberOfDev):
     print('#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#')
     print()
 
-
     command_for_IPsec = [f'set network tunnel ipsec {ipsec_tunnel_name} auto-key ike-gateway {ike_gateway_name}',
                          f'set network tunnel ipsec {ipsec_tunnel_name} auto-key ipsec-crypto-profile {ph2_sa}',
                          f'set network tunnel ipsec {ipsec_tunnel_name} tunnel-monitor enable no',
@@ -162,7 +234,4 @@ for num in range(numberOfDev):
     print(f'IPsec Tunnel Configuration has been completed')
     print('#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#')
     print()                         
-    
-    
-    ssh_connect.send_command("save")
-    ssh_connect.exit_config_mode()
+ 
