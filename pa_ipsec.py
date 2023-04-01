@@ -1,6 +1,7 @@
 from netmiko import ConnectHandler
 import getpass # enrypt login credentials
 import time
+import os
 
 # define invetory for devices
 print()
@@ -11,44 +12,54 @@ for num in range(numberOfDev):
     # define variables for firewall login
     fw_ip = input('Enter Firewall IP Address: ')
     fw_user = input('Enter Firewall SSH User: ')
-    fw_pass = getpass.getpass('Enter Firewall SSH Passwqord: ')
+    fw_pass = getpass.getpass('Enter Firewall SSH Password: ')
 
     fw_dev = {'ip':fw_ip,
               'username':fw_user,
               'password':fw_pass,
               'device_type': 'paloalto_panos'}
     
-    # connect to firewall
     ssh_connect = ConnectHandler(**fw_dev)
-    print(f'Successful connection to {fw_ip} address')
 
+    print()
+    delay = 1.2
+    char = '. . . .'
+    for ch in char:
+        print(ch, end="", flush=True)  # print the character without a newline
+        time.sleep(delay) 
+    print()
+    print(f'Successful connection {fw_ip} address')
+    time.sleep(3)
+    os.system('cls' if os.name=='nt' else 'clear')
      
     # define IPsec tunnel configuration
     ike_gateway_name = input('Define IKE GW Name: ')
     ipsec_tunnel_name = input('Define IPsec Tunnel Name: ')
-    local_public_ip = input('Define Local Public IP: (193.41.128.1)')
-    peer_public_ip = input('Define Peer Public IP: (85.85.85.85/30)')
+    local_public_ip = input('Define Local Public IP: (e.g193.41.128.1/24)')
+    peer_public_ip = input('Define Peer Public IP: (e.g85.85.85.85)')
     pre_shared_key = input('Define PSK: ')
     vpn_zone_name = input('Define VPN Zone Name(if you have,use it same): ')
-    
-    print('#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#')
-    print()
+    tunnel_interface = int(input('Define Tunnel Interface Number: '))
+    time.sleep(5)
+    print('Please wait ... ')
+    os.system('cls' if os.name=='nt' else 'clear')
+    time.sleep(3)
 
     # define Tunnel Interface number 
     # not working for now
-    last_created_tunnel_interface = int(input('Define Last Created Tunnel Interface Number'))
-    tunnel_interface = int(input('Define Tunnel Interface Number: '))
-    check = 3
-    while check > 0:
+    #last_created_tunnel_interface = int(input('Define Last Created Tunnel Interface Number: '))
+    
+    #check = 3
+    #while check > 0:
 
-        if int(tunnel_interface) > int(last_created_tunnel_interface):
-            pass
-        else:
-            check = check - 1
-            break
+        #if int(tunnel_interface) > int(last_created_tunnel_interface):
+            #pass
+        #else:
+            #check = check - 1
+            #break
     
     # IKE Profile
-    ike_profile = input('Would you like to use existing IKE Crypto Profile(1) or create new one(2) ? - \n Click, 1 or 2')
+    ike_profile = input('Would you like to use existing IKE Crypto Profile(1) or create new one(2) ? - Click, 1 or 2: ')
     # choose existing profile if you have in your PA device
     # you can add your IKE Crypto Profile name which is exist in your PA device(below is for me)
     if ike_profile == '1':
@@ -56,10 +67,11 @@ for num in range(numberOfDev):
         IKE_Crypto_Profile_List = ['Aes256-Sha1-dh14-86400',
                                    'Aes256-Sha1-dh5-86400',
                                    'Aes256-Sha1-dh14-28800']
+        print('#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#')
         print('IKE-GW-Profile: ', IKE_Crypto_Profile_List)
         print('#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#')
+        time.sleep(3)
         print()
-
         ike_profile_name = ''
         phase1 = input('Choose one of them(copy and paste here): ')
         if phase1 == 'Aes256-Sha1-dh14-86400':
@@ -83,15 +95,15 @@ for num in range(numberOfDev):
         print()
         # configuration stage for existing IKE GW Profile
         configuration_for_IKE_Profile = ssh_connect.send_config_set(command_for_IKE_Profile)
-        print()
         print('#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#')
-        print()
         print('IKE Crypto Profile Setting has been configured...')
-        print()
         time.sleep(5)
         print('Please wait ...')
         print('IKE Crypto Profile Setting has been completed...')
-        print()
+        print('#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#')
+        time.sleep(3)
+        os.system('cls' if os.name=='nt' else 'clear')
+        
 
     elif ike_profile == '2':
         # if you choose (2), create your own crypto profile
@@ -111,8 +123,6 @@ for num in range(numberOfDev):
             ike_auth_value == ike_auth[3]
         elif ike_auth_value == 'md5':
             ike_auth_value == ike_auth[4]
-        else:
-            break
         
         # create your encryption values
         ike_encrypt = ['aes-128-cbc','aes-192-cbc','aes256-cbc','3des','aes128-gcm','aes256-gcm']
@@ -123,16 +133,14 @@ for num in range(numberOfDev):
             ike_encr_value == ike_encrypt[0]
         elif ike_encr_value == 'aes-192-cbc':
             ike_encr_value == ike_encrypt[1]
-        elif ike_encr_value == 'aes256-cbc':
+        elif ike_encr_value == 'aes-256-cbc':
             ike_encr_value == ike_encrypt[2]
         elif ike_encr_value == '3des':
             ike_encr_value == ike_encrypt[3]
-        elif ike_encr_value == 'aes128-gcm':
+        elif ike_encr_value == 'aes-128-gcm':
             ike_encr_value == ike_encrypt[4]
-        elif ike_encr_value == 'aes256-gcm':
+        elif ike_encr_value == 'aes-256-gcm':
             ike_encr_value == ike_encrypt[5]
-        else:
-            break
         
         # create your diffie-helman values
         ike_diffie_hellman = ['group1','group2','group5','group14','group15']
@@ -149,23 +157,24 @@ for num in range(numberOfDev):
             ike_dh_value == ike_diffie_hellman[3]
         elif ike_dh_value == 'group15':
             ike_dh_value == ike_diffie_hellman[4]
-        else:
-            break
 
         ike_lifetime = input('Define your lifetime: seconds(click 1) / hours(click 2)')
         if ike_lifetime == '1':
             print('ike life time will accepted like as seconds format')
             ike_lifetime_value = input('Define lifetime : ')
+            pan_cmd = [f'set network ike crypto-profiles ike-crypto-profiles {ike_profile_name} lifetime seconds {ike_lifetime_value}']
+            conf_pan_cmd = ssh_connect.send_config_set(pan_cmd)
         elif ike_lifetime == '2':
             print('ike life time will accepted like as hours format')
             ike_lifetime_value = input('Define lifetime : ')
+            pan_cmd = [f'set network ike crypto-profiles ike-crypto-profiles {ike_profile_name} lifetime hours {ike_lifetime_value}']
+            conf_pan_cmd = ssh_connect.send_config_set(pan_cmd)
 
         # configuration stage for IKE GW Profile
 
         command_for_IKE_Profile = [f'set network ike crypto-profiles ike-crypto-profiles {ike_profile_name} hash {ike_auth_value}',
                                    f'set network ike crypto-profiles ike-crypto-profiles {ike_profile_name} encryption {ike_encr_value}',
-                                   f'set network ike crypto-profiles ike-crypto-profiles {ike_profile_name} dh-group {ike_dh_value}',
-                                   f'set network ike crypto-profiles ike-crypto-profiles {ike_profile_name} lifetime {ike_lifetime_value}']
+                                   f'set network ike crypto-profiles ike-crypto-profiles {ike_profile_name} dh-group {ike_dh_value}']
 
         configuration_for_IKE_Profile = ssh_connect.send_config_set(command_for_IKE_Profile)
         print()
@@ -176,7 +185,8 @@ for num in range(numberOfDev):
         time.sleep(5)
         print('Please wait ...')
         print('IKE Crypto Profile Setting has been completed...')
-        print()
+        os.system('cls' if os.name=='nt' else 'clear')
+        time.sleep(3)
 
 
     # choose Phase2 Proposals
@@ -253,8 +263,6 @@ for num in range(numberOfDev):
         print()
         print('#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#')
         print()
-        print('Tunnel Interface Setting has been configured...')
-        print()
         time.sleep(5)
         print('Please wait ...')
         print(f'VPN Route {ip_route_name} has been created')
@@ -289,17 +297,12 @@ for num in range(numberOfDev):
                         f'set network tunnel ipsec {ipsec_tunnel_name} tunnel-interface tunnel.{tunnel_interface}',
                             ]
     configuration_for_Phase2 = ssh_connect.send_config_set(command_for_IPsec)
-    print(f'IPsec Tunnel Configuration has been completed')
-    print('#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#')
-    print()
 
     # Proxy ID Configuration If your connection will be Policy-Based VPN
     
     proxy_id = input('Do you need proxy-id ? "Y / N ? - "')   
     print()
-    
     proxy_id_count = 0
-    proxy_id_list = []
     if proxy_id == "Y":
             proxy_id_size = int(input('How much proxy id would you like to add ? '))
             for proxy_id in range(proxy_id_size):
@@ -309,13 +312,13 @@ for num in range(numberOfDev):
                 proxy_id_local = input('Define Proxy ID Local Subnet: ')
                 proxy_id_remote = input('Define Proxy ID Remote Subnet: ')
                 print()
-                #proxy_id_list.append(proxy_id_name)
-                print()
                 command_for_Proxy_ID = [f'set network tunnel ipsec {ipsec_tunnel_name} auto-key proxy-id {proxy_id_name} protocol {proxy_id_protocol} ',
                                         f'set network tunnel ipsec {ipsec_tunnel_name} auto-key proxy-id {proxy_id_name} local {proxy_id_local}',
                                         f'set network tunnel ipsec {ipsec_tunnel_name} auto-key proxy-id {proxy_id_name} remote {proxy_id_remote}']
                 configuration_for_proxy_id = ssh_connect.send_config_set(command_for_Proxy_ID)
             print()
-            #print(f'Proxy-ID {proxy_id_list[0]} and {proxy_id_list[1]} has been created')
             print('#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#')
             print()
+    print(f'IPsec Tunnel Configuration has been completed')
+    print('#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#')
+    print()
